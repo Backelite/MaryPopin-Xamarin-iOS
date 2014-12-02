@@ -1,0 +1,15 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="MaryPopin/ApiDefinition.cs">
+    <Files>
+      <File FileName="MaryPopin/libMaryPopin.linkwith.cs" Line="1" Column="1" />
+      <File FileName="MaryPopin/StructsAndEnums.cs" Line="31" Column="31" />
+      <File FileName="MaryPopin/ApiDefinition.cs" Line="2" Column="2" />
+      <File FileName="MaryPopin/obj/Release/ios/MaryPopin/MaryPopinUIViewControllerExtension.g.cs" Line="10" Column="10" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
