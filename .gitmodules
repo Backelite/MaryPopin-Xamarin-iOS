@@ -1,0 +1,3 @@
+[submodule "Native Library/MaryPopinGithub"]
+	path = Native Library/MaryPopinGithub
+	url = https://github.com/Backelite/MaryPopin.git
