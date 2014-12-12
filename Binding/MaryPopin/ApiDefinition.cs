@@ -1,69 +1,32 @@
 ﻿using System.Drawing;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using MonoTouch.ObjCRuntime;
+using System;
 
 namespace MaryPopin
 {
-	// The first step to creating a binding is to add your native library ("libNativeLibrary.a")
-	// to the project by right-clicking (or Control-clicking) the folder containing this source
-	// file and clicking "Add files..." and then simply select the native library (or libraries)
-	// that you want to bind.
-	//
-	// When you do that, you'll notice that MonoDevelop generates a code-behind file for each
-	// native library which will contain a [LinkWith] attribute. MonoDevelop auto-detects the
-	// architectures that the native library supports and fills in that information for you,
-	// however, it cannot auto-detect any Frameworks or other system libraries that the
-	// native library may depend on, so you'll need to fill in that information yourself.
-	//
-	// Once you've done that, you're ready to move on to binding the API...
-	//
-	//
-	// Here is where you'd define your API definition for the native Objective-C library.
-	//
-	// For example, to bind the following Objective-C class:
-	//
-	//     @interface Widget : NSObject {
-	//     }
-	//
-	// The C# binding would look like this:
-	//
-	//     [BaseType (typeof (NSObject))]
-	//     interface Widget {
-	//     }
-	//
-	// To bind Objective-C properties, such as:
-	//
-	//     @property (nonatomic, readwrite, assign) CGPoint center;
-	//
-	// You would add a property definition in the C# interface like so:
-	//
-	//     [Export ("center")]
-	//     PointF Center { get; set; }
-	//
-	// To bind an Objective-C method, such as:
-	//
-	//     -(void) doSomething:(NSObject *)object atIndex:(NSInteger)index;
-	//
-	// You would add a method definition to the C# interface like so:
-	//
-	//     [Export ("doSomething:atIndex:")]
-	//     void DoSomething (NSObject object, int index);
-	//
-	// Objective-C "constructors" such as:
-	//
-	//     -(id)initWithElmo:(ElmoMuppet *)elmo;
-	//
-	// Can be bound as:
-	//
-	//     [Export ("initWithElmo:")]
-	//     IntPtr Constructor (ElmoMuppet elmo);
-	//
-	// For more information, see http://docs.xamarin.com/ios/advanced_topics/binding_objective-c_libraries
-	//
+	[BaseType(typeof(NSObject))]
+	interface BKTBlurParameters
+	{
+		[Export("alpha", ArgumentSemantic.UnsafeUnretained)]
+		float Alpha { get; set; }
 
-	[BaseType(typeof(UIViewController))]
+		[Export("radius", ArgumentSemantic.UnsafeUnretained)]
+		float Radius { get; set; }
+
+		[Export("saturationDeltaFactor", ArgumentSemantic.UnsafeUnretained)]
+		float SaturationDeltaFactor { get; set; }
+
+		[Export("tintColor", ArgumentSemantic.Retain)]
+		UIColor TintColor { get; set; }
+	}
+
+	delegate void AnimationDelegate(UIViewController popinController, RectangleF initialFrame, RectangleF finalFrame);
+
 	[Category]
-	interface MaryPopinUIViewControllerExtension {
+	[BaseType(typeof(UIViewController))]
+	interface MaryPopin {
 		#region Methods
 
 		/// <summary>
@@ -73,7 +36,7 @@ namespace MaryPopin
 		/// <param name="animated">Pass `YES` to animate the presentation. Otherwise, pass `NO`.</param>
 		/// <param name="completion">A completion handler, or `NULL`</param>
 		[Export("presentPopinController:animated:completion:")]
-		void PresentPopinController(UIViewController popinController, bool animated, [NullAllowed] CompletionDelegate completion);
+		void PresentPopinController(UIViewController popinController, bool animated, [NullAllowed] Action completion);
 
 		/// <summary>
 		/// Present a popin controller as a child of the receiver, centered inside an arbitrary rect.
@@ -83,7 +46,7 @@ namespace MaryPopin
 		/// <param name="animated">Pass `YES` to animate the presentation. Otherwise, pass `NO`.</param>
 		/// <param name="completion">A completion handler, or `NULL`.</param>
 		[Export("presentPopinController:fromRect:animated:completion:")]
-		void PresentPopinController(UIViewController popinController, RectangleF fromRect, bool animated, [NullAllowed] CompletionDelegate completion);
+		void PresentPopinController(UIViewController popinController, RectangleF fromRect, bool animated, [NullAllowed] Action completion);
 
 		/// <summary>
 		/// Dismiss the visible popin if any.
@@ -98,85 +61,84 @@ namespace MaryPopin
 		/// <param name="animated">Pass `YES` to animate the dismiss. Otherwise, pass `NO`.</param>
 		/// <param name="completion">A completion handler, or `NULL`.</param>
 		[Export("dismissCurrentPopinControllerAnimated:completion:")]
-		void DismissCurrentPopinController(bool animated, [NullAllowed] CompletionDelegate completion);
+		void DismissCurrentPopinController(bool animated, [NullAllowed] Action completion);
 
 		#endregion
 
 
-		#region Properties
+		#region Properties like
 
-		/// <summary>
-		/// A reference to the popin presented as a child controller.
-		/// </summary>
-		/// <value>The controller presented as a popin or `nil`.</value>
+		// -(UIViewController *)presentedPopinViewController;
 		[Export("presentedPopinViewController")]
-		UIViewController PresentedPopinViewController { get; }
+		UIViewController PresentedPopinViewController();
 
-		/// <summary>
-		/// A reference to the parent presenting the popin.
-		/// </summary>
-		/// <value>The controller presenting the popin, or `nil`.</value>
+		// -(UIViewController *)presentingPopinViewController;
 		[Export("presentingPopinViewController")]
-		UIViewController PresentingPopinViewController{ get; }
+		UIViewController PresentingPopinViewController();
 
-		/// <summary>
-		/// Gets or sets the size of the prefered popin content.
-		/// This value may not be respected if popin is bigger than the presenting controller view.
-		/// If not set, the default size will be the controller view size.
-		/// </summary>
-		/// <value>The size of the prefered popin content.</value>
+		// -(CGSize)preferedPopinContentSize;
 		[Export("preferedPopinContentSize")]
-		SizeF PreferedPopinContentSize{ get; set; }
+		SizeF PreferedPopinContentSize();
 
-		/// <summary>
-		/// The transition style to use when presenting a popin. Default value is `BKTPopinTransitionStyleSlide`.
-		/// For a list of possible transition style, see `BKTPopinTransitionStyle`.
-		/// </summary>
-		/// <value>The popin transition style.</value>
+		// -(void)setPreferedPopinContentSize:(CGSize)preferredSize;
+		[Export("setPreferedPopinContentSize:")]
+		void SetPreferedPopinContentSize(RectangleF preferredSize);
+
+		// -(BKTPopinTransitionStyle)popinTransitionStyle;
 		[Export("popinTransitionStyle")]
-		BKTPopinTransitionStyle PopinTransitionStyle { get; set; }
+		BKTPopinTransitionStyle PopinTransitionStyle();
 
-		/// <summary>
-		/// The transition direction to use when presenting a popin. Default value is `BKTPopinTransitionDirectionBottom`.
-		/// </summary>
-		/// <value>The popin transition direction.</value>
+		// -(void)setPopinTransitionStyle:(BKTPopinTransitionStyle)transitionStyle;
+		[Export("setPopinTransitionStyle:")]
+		void SetPopinTransitionStyle(BKTPopinTransitionStyle transitionStyle);
+
+		// -(BKTPopinTransitionDirection)popinTransitionDirection;
 		[Export("popinTransitionDirection")]
-		BKTPopinTransitionDirection PopinTransitionDirection { get; set; }
+		BKTPopinTransitionDirection PopinTransitionDirection();
 
-		/// <summary>
-		/// The options to apply to the popin. For a list of possible options, see BKTPopinOption.
-		/// </summary>
-		/// <value>The popin options.</value>
-		[Export("popinOption")]
-		BKTPopinOption PopinOptions { get; set; }
+		// -(void)setPopinTransitionDirection:(BKTPopinTransitionDirection)transitionDirection;
+		[Export("setPopinTransitionDirection:")]
+		void SetPopinTransitionDirection(BKTPopinTransitionDirection transitionDirection);
 
-		/// <summary>
-		/// Get the custom in animation block. Default value is nil.
-		/// </summary>
-		/// <value>The popin custom in animation.</value>
+		// -(BKTPopinOption)popinOptions;
+		[Export("popinOptions")]
+		BKTPopinOption PopinOptions();
+
+		// -(void)setPopinOptions:(BKTPopinOption)popinOptions;
+		[Export("setPopinOptions:")]
+		void SetPopinOptions(BKTPopinOption popinOptions);
+
+		// -(void (^)(UIViewController *, CGRect, CGRect))popinCustomInAnimation;
 		[Export("popinCustomInAnimation")]
-		AnimationDelegate PopinCustomInAnimation { get; set; }
+		AnimationDelegate PopinCustomInAnimation();
 
-		/// <summary>
-		/// Get the custom out animation block. Default value is nil.
-		/// </summary>
-		/// <value>The popin custom out animation.</value>
+		// -(void)setPopinCustomInAnimation:(void (^)(UIViewController *, CGRect, CGRect))customInAnimation;
+		[Export("setPopinCustomInAnimation:")]
+		void SetPopinCustomInAnimation(AnimationDelegate customInAnimation);
+
+		// -(void (^)(UIViewController *, CGRect, CGRect))popinCustomOutAnimation;
 		[Export("popinCustomOutAnimation")]
-		AnimationDelegate PopinCustomOutAnimation { get; set; }
+		AnimationDelegate PopinCustomOutAnimation();
 
-		/// <summary>
-		/// The options to apply to the popin. Default value is `BKTPopinAlignementOptionCentered`.
-		/// </summary>
-		/// <value>The popin alignment.</value>
+		// -(void)setPopinCustomOutAnimation:(void (^)(UIViewController *, CGRect, CGRect))customOutAnimation;
+		[Export("setPopinCustomOutAnimation:")]
+		void SetPopinCustomOutAnimation(AnimationDelegate customOutAnimation);
+
+		// -(BKTPopinAlignementOption)popinAlignment;
 		[Export("popinAlignment")]
-		BKTPopinAlignementOption PopinAlignment { get; set; }
+		BKTPopinAlignementOption PopinAlignment();
 
-		/// <summary>
-		/// An object used to configure the blurred background.
-		/// </summary>
-		/// <value>The blur parameters.</value>
-		[Export("blurParameters"), NullAllowed]
-		BKTBlurParameters BlurParameters { get; set; }
+		// -(void)setPopinAlignment:(BKTPopinAlignementOption)popinAlignment;
+		[Export("setPopinAlignment:")]
+		void SetPopinAlignment(BKTPopinAlignementOption popinAlignment);
+
+		// -(BKTBlurParameters *)blurParameters;
+		[Export("blurParameters")]
+		BKTBlurParameters BlurParameters();
+
+		// -(void)setBlurParameters:(BKTBlurParameters *)blurParameters;
+		[Export("setBlurParameters:")]
+		void SetBlurParameters(BKTBlurParameters blurParameters);
 
 		#endregion
 	}

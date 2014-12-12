@@ -1,30 +1,9 @@
-﻿using System.Drawing;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+﻿using MonoTouch.ObjCRuntime;
 
 namespace MaryPopin
 {
-	[BaseType(typeof(NSObject))]
-	interface BKTBlurParameters
-	{
-		[Export("alpha")]
-		float Alpha { get; set; }
-
-		[Export("radius")]
-		float Radius { get; set; }
-
-		[Export("saturationDeltaFactor")]
-		float SaturationDeltaFactor { get; set; }
-
-		[Export("tintColor")]
-		UIColor TintColor { get; set; }
-	}
-
-	delegate void CompletionDelegate();
-
-	delegate void AnimationDelegate(UIViewController popinController, RectangleF initialFrame, RectangleF finalFrame);
-
-	public enum BKTPopinTransitionStyle
+	[Native]
+	public enum BKTPopinTransitionStyle : int
 	{
 		/// <summary>
 		/// When the view controller is presented, its view slide in the parent view controller and slide out on dismiss.
@@ -56,7 +35,8 @@ namespace MaryPopin
 		Custom
 	}
 
-	public enum BKTPopinTransitionDirection
+	[Native]
+	public enum BKTPopinTransitionDirection : int
 	{
 		/// <summary>
 		/// Presentation transition will start from the bottom of the parent view. Respectively, dismiss transition will end to the bottom of the parent view.
@@ -76,7 +56,8 @@ namespace MaryPopin
 		Right
 	}
 
-	public enum BKTPopinOption
+	[Native]
+	public enum BKTPopinOption : uint
 	{
 		/// <summary>
 		/// Default behaviour.
@@ -104,7 +85,8 @@ namespace MaryPopin
 		DimmingViewStyleNone = 1 << 16
 	}
 
-	public enum BKTPopinAlignementOption
+	[Native]
+	public enum BKTPopinAlignementOption : int
 	{
 		/// <summary>
 		/// Popin will be centered in container. Default.
