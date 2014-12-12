@@ -8,7 +8,7 @@ This project contains:
 - A Xcode project to build MaryPopin as a static library
 - A Xamarin project to build the binding
 
-The latest dll is directly available [here]().
+The latest dll is directly available [here](Binding/MaryPopin/bin/Release/MaryPopin.dll).
 
 It is 32-bits only for the moment but will be 64-bits as soon as Xamarin releases its Unified library in stable stage.
 
