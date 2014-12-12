@@ -2,3 +2,7 @@ build
 bin
 obj
 *.userprefs
+
+!*.dll
+!Binding/MaryPopin/bin
+*.mdb
